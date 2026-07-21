@@ -1,5 +1,3 @@
-from pathlib import Path
-
 from github import Auth
 from github import Github
 import json
