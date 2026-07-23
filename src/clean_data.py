@@ -14,10 +14,11 @@ LABEL_MAP = {
     "feature-request": "feature-request",
     "under-discussion": "under-discussion",
     "info-needed": "info-needed",
-    "ux": "ux"
+    "ux": "ux",
+    "triage-needed": "triage-needed",
 }
 
-PRIORITY = ["bug", "feature-request", "under-discussion", "info-needed", "ux"]
+PRIORITY = ["bug", "feature-request", "under-discussion", "info-needed", "ux", "triage-needed"]
 
 def extract_label(labels):
     normalized = [LABEL_MAP[l.lower()] for l in labels if l.lower() in LABEL_MAP]
