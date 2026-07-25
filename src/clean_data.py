@@ -1,4 +1,6 @@
 import json
+import html
+import re
 import pandas as pd
 
 raw_issues = []
@@ -31,12 +33,22 @@ def extract_label(labels):
             return p
     return normalized[0]
 
+def clean_text(text):
+    text = str(text) if text is not None else ""
+    text = html.unescape(text)  # &nbsp; -> non-breaking space, &amp; -> &, etc
+    text = re.sub(r'\xa0', ' ', text)  #(U+00A0) -> regular space
+    text = re.sub(r'<[^>]+>', ' ', text)  # remove HTML-tags, if present
+    text = re.sub(r'```[\s\S]*?```', ' ', text)  # remove code markdown
+    text = re.sub(r'\s+', ' ', text).strip()  # remove multiple space, new lines
+
+    return text
+
 cleaned = []
 
 for issues in raw_issues:
     # filter out issues with no name and title
-    title = (issues.get("title") or "").strip()
-    body = (issues.get("body") or "").strip()
+    title = clean_text(issues.get("title") or "").strip()
+    body = clean_text(issues.get("body") or "").strip()
 
     if not title and not body:
         continue
