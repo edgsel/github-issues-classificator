@@ -17,3 +17,10 @@ val.to_csv("../data/val.csv", index=False)
 test.to_csv("../data/test.csv", index=False)
 
 print(f"Train: {len(train)}, Val: {len(val)}, Test: {len(test)}")
+
+print("Train:")
+print(train["label"].value_counts(normalize=True))
+print("\nVal:")
+print(val["label"].value_counts(normalize=True))
+print("\nTest:")
+print(test["label"].value_counts(normalize=True))
