@@ -9,31 +9,38 @@ load_dotenv()
 auth = Auth.Token(os.getenv("GITHUB_API_TOKEN") or "")
 g = Github(auth=auth)
 repo = g.get_repo(os.getenv("GITHUB_REPO_NAME") or "")
-issues = repo.get_issues(state="all")
 
 collected = []
-for i, issue in enumerate(issues):
-    if issue.parent_issue_url is not None:
-        continue
+relevant_labels = ["bug", "feature-request", "ux"]
+ISSUES_LIMIT_PER_LABEL = 5000
 
-    print(f"Collecting {issue}")
+for label in relevant_labels:
+    issues = repo.get_issues(state="all", labels=[label])
 
-    collected.append({
-        "id": issue.number,
-        "title": issue.title,
-        "body": issue.body,
-        "labels": [label.name for label in issue.labels],
-        "state": issue.state,
-        "created_at": issue.created_at.isoformat(),
-        "comments_count": issue.comments
-    })
+    print(f"Fetching issues for label: {label}")
 
-    if i % 500 == 0:
-        print(f"Collected {i} issues")
+    for i, issue in enumerate(issues):
+        if issue.pull_request is not None:
+            continue
 
-    # rate limit
-    if len(collected) >= 6000:
-        break
+        print(f"Collecting {issue}")
+
+        collected.append({
+            "id": issue.number,
+            "title": issue.title,
+            "body": issue.body or "",
+            "labels": [l.name for l in issue.labels],
+            "state": issue.state,
+            "created_at": issue.created_at.isoformat(),
+            "comments_count": issue.comments
+        })
+
+        if i % 500 == 0:
+            print(f"Collected {i} issues")
+
+        # rate limit
+        if i >= ISSUES_LIMIT_PER_LABEL:
+            break
 
 with open("../data/raw_issues.jsonl", "w") as f:
     for item in collected:

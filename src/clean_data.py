@@ -14,13 +14,10 @@ print(f"Total issues before cleaning: {len(raw_issues)}")
 LABEL_MAP = {
     "bug": "bug",
     "feature-request": "feature-request",
-    "under-discussion": "under-discussion",
-    "info-needed": "info-needed",
     "ux": "ux",
-    "triage-needed": "triage-needed",
 }
 
-PRIORITY = ["bug", "feature-request", "under-discussion", "info-needed", "ux", "triage-needed"]
+PRIORITY = ["bug", "feature-request", "ux"]
 
 def extract_label(labels):
     normalized = [LABEL_MAP[l.lower()] for l in labels if l.lower() in LABEL_MAP]
@@ -31,6 +28,7 @@ def extract_label(labels):
     for p in PRIORITY:
         if p in normalized:
             return p
+
     return normalized[0]
 
 def clean_text(text):
@@ -46,7 +44,6 @@ def clean_text(text):
 cleaned = []
 
 for issues in raw_issues:
-    # filter out issues with no name and title
     title = clean_text(issues.get("title") or "").strip()
     body = clean_text(issues.get("body") or "").strip()
 
@@ -55,7 +52,6 @@ for issues in raw_issues:
 
     label = extract_label(issues.get("labels", []))
 
-    # no label, no learning
     if label is None:
         continue
 
